@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import Terminal from './Terminal'
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+
 const TechIcon = ({ name }) => {
   const icons = {
     "Python": "🐍", "Java": "☕", "Node.js (Express)": "🟢", "Nest.js": "🐱",
@@ -18,7 +20,7 @@ function App() {
   const [formStatus, setFormStatus] = useState(null)
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/data')
+    fetch(`${API_BASE_URL}/api/data`)
       .then(res => res.json())
       .then(json => {
         setData(json)
@@ -34,7 +36,7 @@ function App() {
     e.preventDefault()
     setFormStatus('sending')
     try {
-      const resp = await fetch('http://localhost:8000/api/contact', {
+      const resp = await fetch(`${API_BASE_URL}/api/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(contactForm)
@@ -108,7 +110,7 @@ function App() {
                 "{data.profile}"
               </p>
               <div className="flex flex-wrap gap-6 pt-4">
-                <a href="http://localhost:8000/downloads/ephraimCV.pdf" download className="glow-btn px-10 py-4 bg-cyber-accent text-cyber-dark font-black rounded-sm shadow-2xl hover:bg-white transition-all transform hover:-rotate-1 active:scale-95">
+                <a href={`${API_BASE_URL}/downloads/ephraimCV.pdf`} download className="glow-btn px-10 py-4 bg-cyber-accent text-cyber-dark font-black rounded-sm shadow-2xl hover:bg-white transition-all transform hover:-rotate-1 active:scale-95">
                    DOWNLOAD_CV.PDF
                 </a>
                 <div className="flex gap-4 items-center">
