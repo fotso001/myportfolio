@@ -78,7 +78,7 @@ portfolio_data = {
             "badge": "FULLSTACK",
             "role": "Application mobile de réservation de parking",
             "company": "Projet Académique",
-            "location": "ESIEA",
+            "location": "University SIANTOU",
             "period": "2024",
             "highlights": [
                 "Application mobile incluant inscription et réservation",
@@ -90,7 +90,7 @@ portfolio_data = {
             "badge": "CYBERSEC",
             "role": "Réservation de parking (Sécurité intégrée)",
             "company": "Projet Académique",
-            "location": "ESIEA",
+            "location": "University SIANTOU",
             "period": "2024",
             "highlights": [
                 "Développement front-end React/React Native avec stockage sécurisé des secrets",
