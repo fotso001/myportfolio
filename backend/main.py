@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -6,37 +6,37 @@ import os
 
 app = FastAPI()
 
-# Allow frontend to access the backend
+# ─────────────────────────────────────────
+# CORS
+# ─────────────────────────────────────────
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
-        "https://myporfolio-beryl.vercel.app"
+        os.getenv("FRONTEND_URL", "https://myporfolio-beryl.vercel.app")
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# ─────────────────────────────────────────
 # Models
+# ─────────────────────────────────────────
 class ContactMessage(BaseModel):
     name: str
     email: str
     message: str
 
-# Data
-portfolio_data = {
-    # ... existing data ...
-}
-
-# (Existing data omitted for brevity, keeping the same structure)
-# Let's keep the actual data for persistence
+# ─────────────────────────────────────────
+# Data (données sensibles via variables d'environnement)
+# ─────────────────────────────────────────
 portfolio_data = {
     "name": "EPHRAIM BORIS FOTSO",
     "title": "Développeur Fullstack & Étudiant Ingénieur (Projets Cybersécurité)",
     "location": "Île-de-France",
-    "phone": "0782610112",
-    "email": "fotsoephraim05@gmail.com",
+    "phone": os.getenv("CONTACT_PHONE", ""),
+    "email": os.getenv("CONTACT_EMAIL", ""),
     "links": {
         "github": "https://www.github.com/fotso001",
         "gitlab": "https://gitlab.esiea.fr/ephraimboris.fotsongougiegne",
@@ -112,20 +112,58 @@ portfolio_data = {
     ]
 }
 
+# ─────────────────────────────────────────
+# Routes
+# ─────────────────────────────────────────
 @app.get("/api/data")
 async def get_portfolio_data():
     return portfolio_data
 
+
 @app.post("/api/contact")
 async def contact(msg: ContactMessage):
-    print(f"New contact message from {msg.name} ({msg.email}): {msg.message}")
-    # In a real app, send an email or save to DB here.
+    """
+    Reçoit un message du formulaire de contact.
+    Envoie un email via le service Resend (https://resend.com – gratuit jusqu'à 3000 emails/mois).
+    
+    Pour activer l'envoi d'email :
+      1. Créer un compte sur resend.com
+      2. Récupérer ton API key
+      3. Ajouter RESEND_API_KEY dans tes variables d'environnement (GitHub Secrets + Render)
+      4. Décommenter le bloc ci-dessous et ajouter 'resend' dans requirements.txt
+    """
+ #je n'ai pas encore créé mon compte sur resend.com
+    # ── Option A : Resend (recommandé, simple) ──────────────────────────────
+    # import resend
+    # resend.api_key = os.getenv("RESEND_API_KEY")
+    # resend.Emails.send({
+    #     "from": "portfolio@yourdomain.com",
+    #     "to": os.getenv("CONTACT_EMAIL"),
+    #     "subject": f"[Portfolio] Message de {msg.name}",
+    #     "html": f"""
+    #         <p><strong>De :</strong> {msg.name} ({msg.email})</p>
+    #         <p><strong>Message :</strong></p>
+    #         <p>{msg.message}</p>
+    #     """
+    # })
+    # ────────────────────────────────────────────────────────────────────────
+
+    # Log temporaire jusqu'à activation de l'envoi d'email
+    print(f"[CONTACT] {msg.name} <{msg.email}> : {msg.message}")
+
     return {"status": "success", "message": "Message reçu !"}
 
-# Serve CVs for download
+
+# ─────────────────────────────────────────
+# Static files (CV download)
+# ─────────────────────────────────────────
 if os.path.exists("assets"):
     app.mount("/downloads", StaticFiles(directory="assets"), name="downloads")
 
+
+# ─────────────────────────────────────────
+# Entrypoint local
+# ─────────────────────────────────────────
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
